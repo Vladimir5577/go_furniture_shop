@@ -1,5 +1,7 @@
 package service
 
+import "furniture_shop/internal/repository"
+
 type ICategoryService interface {
 	GetAllCategories() string
 	GetCategoryById() string
@@ -9,28 +11,31 @@ type ICategoryService interface {
 }
 
 type CategoryService struct {
+	Repository repository.ICategoryRepository
 }
 
-func NewCategoryService() *CategoryService {
-	return &CategoryService{}
+func NewCategoryService(repo repository.ICategoryRepository) *CategoryService {
+	return &CategoryService{
+		Repository: repo,
+	}
 }
 
 func (c *CategoryService) GetAllCategories() string {
-	return "Get all categories from service"
+	return c.Repository.GetAllCategories()
 }
 
 func (c *CategoryService) GetCategoryById() string {
-	return "Get by id service"
+	return c.Repository.GetCategoryById()
 }
 
 func (c *CategoryService) CreateCategory() string {
-	return "Create in service"
+	return c.Repository.CreateCategory()
 }
 
 func (c *CategoryService) UpdateCategory() string {
-	return "Update in service"
+	return c.Repository.UpdateCategory()
 }
 
 func (c *CategoryService) DeleteCategory() string {
-	return "Delete in service"
+	return c.Repository.DeleteCategory()
 }

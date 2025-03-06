@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/goloop/env"
+	_ "github.com/lib/pq"
 )
 
 type EnvConfig struct {

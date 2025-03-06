@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"furniture_shop/internal/config"
 	"furniture_shop/internal/handler"
+	"furniture_shop/internal/repository"
 	"furniture_shop/internal/service"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -23,11 +23,12 @@ func main() {
 	}
 	_ = db
 
-	os.Exit(123)
+	// os.Exit(123)
 
 	handlMux := http.NewServeMux()
 
-	categoryService := service.NewCategoryService()
+	categoryRepository := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepository)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 
 	handlMux.HandleFunc("GET /categories", categoryHandler.GetAllCategories())
@@ -35,6 +36,16 @@ func main() {
 	handlMux.HandleFunc("POST /category", categoryHandler.CreateCategory())
 	handlMux.HandleFunc("PUT /category", categoryHandler.UpdateCategory())
 	handlMux.HandleFunc("DELETE /category", categoryHandler.DeleteCategory())
+
+	furnitureRepository := repository.NewFurnitureRepository(db)
+	furnitureService := service.NewFurnitureService(furnitureRepository)
+	furnitureHandler := handler.NewFurnitureHandler(furnitureService)
+
+	handlMux.HandleFunc("GET /furnitures", furnitureHandler.GetAllCategories())
+	handlMux.HandleFunc("GET /furniture", furnitureHandler.GetCategoryById())
+	handlMux.HandleFunc("POST /furniture", furnitureHandler.CreateCategory())
+	handlMux.HandleFunc("PUT /furniture", furnitureHandler.UpdateCategory())
+	handlMux.HandleFunc("DELETE /furniture", furnitureHandler.DeleteCategory())
 
 	handlMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

@@ -5,6 +5,7 @@ Install dependencies:
     $ go get github.com/lib/pq
     $ go get -u github.com/goloop/env
 
+Before run make sure that all migrations with goose done (read below).
 Run:
     $ go run cmd/main.go
 
