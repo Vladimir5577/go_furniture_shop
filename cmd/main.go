@@ -3,12 +3,28 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"furniture_shop/internal/config"
 	"furniture_shop/internal/handler"
 	"furniture_shop/internal/service"
+	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+
+	envConfigs, err := config.NewEnvConfig()
+	if err != nil {
+		log.Fatalf("Can't read .env file, %v\n", err)
+	}
+	db, err := config.ConnectDB(envConfigs)
+	if err != nil {
+		log.Fatalf("Can't connect to database, %v\n", err)
+	}
+	_ = db
+
+	os.Exit(123)
+
 	handlMux := http.NewServeMux()
 
 	categoryService := service.NewCategoryService()
@@ -33,7 +49,7 @@ func main() {
 	}
 
 	fmt.Println("Server up and running on port 8081")
-	err := server.ListenAndServe()
+	err = server.ListenAndServe()
 	if err != nil {
 		panic("Error running server !!!")
 	}

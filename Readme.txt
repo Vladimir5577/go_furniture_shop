@@ -1,6 +1,10 @@
 Init project:
     $ go mod init furniture_shop
 
+Install dependencies:
+    $ go get github.com/lib/pq
+    $ go get -u github.com/goloop/env
+
 Run:
     $ go run cmd/main.go
 
@@ -17,6 +21,9 @@ Then put credentials in .env file.
 Create migration:
     -s flag to create sequestially
     $ goose create -s create_table_user sql
+
+Run all migrations:
+    $ goose up
 
 // ======================================
 
