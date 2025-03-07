@@ -4,6 +4,7 @@ Init project:
 Install dependencies:
     $ go get github.com/lib/pq
     $ go get -u github.com/goloop/env
+    $ go get github.com/Masterminds/squirrel
 
 Before run make sure that all migrations with goose done (read below).
 Run:
@@ -24,8 +25,8 @@ Create migration:
     $ goose create -s create_table_user sql
 
 Run all migrations:
-    $ goose up
-
+    $ goose up      --- up
+    $ goose down    --- down
 // ======================================
 
 	Postgres in docker with dbgate tool 
