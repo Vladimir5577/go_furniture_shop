@@ -32,7 +32,7 @@ func main() {
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 
 	handlMux.HandleFunc("GET /categories", categoryHandler.GetAllCategories())
-	handlMux.HandleFunc("GET /category", categoryHandler.GetCategoryById())
+	handlMux.HandleFunc("GET /category/{id}", categoryHandler.GetCategoryById())
 	handlMux.HandleFunc("POST /category", categoryHandler.CreateCategory())
 	handlMux.HandleFunc("PUT /category", categoryHandler.UpdateCategory())
 	handlMux.HandleFunc("DELETE /category", categoryHandler.DeleteCategory())

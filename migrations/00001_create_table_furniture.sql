@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE category (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL, -- should be unique
+    name VARCHAR(100) UNIQUE NOT NULL,
     description TEXT,
     image VARCHAR(255),
     is_active BOOlEAN DEFAULT TRUE,

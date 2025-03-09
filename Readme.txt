@@ -47,4 +47,8 @@ Open dbgate in browser;
     -------
 
 http response in json:
-    https://golangbyexample.com/json-response-body-http-go/
+    https://golangbyexample.com/json-response-body-http-go/\
+
+
+Print struct to console:
+    fmt.Printf("Structure: %+v\n", my_structure)
