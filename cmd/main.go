@@ -35,7 +35,7 @@ func main() {
 	handlMux.HandleFunc("GET /category/{id}", categoryHandler.GetCategoryById())
 	handlMux.HandleFunc("POST /category", categoryHandler.CreateCategory())
 	handlMux.HandleFunc("PUT /category", categoryHandler.UpdateCategory())
-	handlMux.HandleFunc("DELETE /category", categoryHandler.DeleteCategory())
+	handlMux.HandleFunc("DELETE /category/{id}", categoryHandler.DeleteCategory())
 
 	furnitureRepository := repository.NewFurnitureRepository(db)
 	furnitureService := service.NewFurnitureService(furnitureRepository)

@@ -6,8 +6,9 @@ CREATE TABLE category (
     description TEXT,
     image VARCHAR(255),
     is_active BOOlEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP default current_timestamp
+    created_at TIMESTAMP DEFAULT date_trunc('second', now()),
+    updated_at TIMESTAMP DEFAULT date_trunc('second', now())
+
 );
 
 CREATE TABLE furniture (
@@ -18,8 +19,8 @@ CREATE TABLE furniture (
     price numeric CHECK (price > 0),
     image VARCHAR(255),
     is_active BOOlEAN DEFAULT TRUE,
-    created_at TIMESTAMP default current_timestamp,
-    updated_at TIMESTAMP default current_timestamp,
+    created_at TIMESTAMP DEFAULT date_trunc('second', now()),
+    updated_at TIMESTAMP DEFAULT date_trunc('second', now()),
 
     FOREIGN KEY (category_id) REFERENCES category(id)
         ON DELETE SET NULL

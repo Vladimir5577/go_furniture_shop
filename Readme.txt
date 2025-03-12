@@ -5,6 +5,7 @@ Install dependencies:
     $ go get github.com/lib/pq
     $ go get -u github.com/goloop/env
     $ go get github.com/Masterminds/squirrel
+    $ go get github.com/nfnt/resize
 
 Before run make sure that all migrations with goose done (read below).
 Run:
@@ -47,7 +48,8 @@ Open dbgate in browser;
     -------
 
 http response in json:
-    https://golangbyexample.com/json-response-body-http-go/\
+    https://golangbyexample.com/json-response-body-http-go/
+    https://freshman.tech/file-upload-golang/
 
 
 Print struct to console:

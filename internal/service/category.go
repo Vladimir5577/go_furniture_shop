@@ -2,8 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"furniture_shop/internal/model"
 	"furniture_shop/internal/repository"
+	"os"
 )
 
 type ICategoryService interface {
@@ -11,7 +13,7 @@ type ICategoryService interface {
 	GetCategoryById(id uint64) (model.Category, error)
 	CreateCategory(model.Category) (int64, error)
 	UpdateCategory(model.Category) (int64, error)
-	DeleteCategory() string
+	DeleteCategory(uint64) (int64, error)
 }
 
 type CategoryService struct {
@@ -53,9 +55,36 @@ func (c *CategoryService) UpdateCategory(category model.Category) (int64, error)
 		return 0, errors.New("name required")
 	}
 
+	existingCategory, err := c.Repository.GetCategoryById(category.Id)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(category.Image) > 0 &&
+		len(existingCategory.Image) > 0 &&
+		category.Image != existingCategory.Image {
+		err := os.Remove("./uploads/" + existingCategory.Image)
+		if err != nil {
+			return 0, err
+		}
+		fmt.Println("old image deleted")
+	}
+
 	return c.Repository.UpdateCategory(category)
 }
 
-func (c *CategoryService) DeleteCategory() string {
-	return c.Repository.DeleteCategory()
+func (c *CategoryService) DeleteCategory(id uint64) (int64, error) {
+	existingCategory, err := c.Repository.GetCategoryById(id)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(existingCategory.Image) > 0 {
+		err := os.Remove("./uploads/" + existingCategory.Image)
+		if err != nil {
+			return 0, err
+		}
+		fmt.Println("image deleted")
+	}
+	return c.Repository.DeleteCategory(id)
 }

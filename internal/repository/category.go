@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"furniture_shop/internal/model"
+	"time"
 
 	"github.com/Masterminds/squirrel"
 )
@@ -26,7 +27,7 @@ type ICategoryRepository interface {
 	GetCategoryById(id uint64) (model.Category, error)
 	CreateCategory(model.Category) (int64, error)
 	UpdateCategory(model.Category) (int64, error)
-	DeleteCategory() string
+	DeleteCategory(id uint64) (int64, error)
 }
 
 type CategoryRepository struct {
@@ -121,9 +122,9 @@ func (c *CategoryRepository) CreateCategory(category model.Category) (int64, err
 }
 
 func (c *CategoryRepository) UpdateCategory(category model.Category) (int64, error) {
-	existingCategory, err := c.GetCategoryById(uint64(category.Id))
+	existingCategory, err := c.GetCategoryById(category.Id)
 	if err != nil {
-		return 0, errors.New(fmt.Sprintf("Category with id = %d not found.", category.Id))
+		return 0, fmt.Errorf("category with id = %d not found", category.Id)
 	}
 
 	builder := squirrel.
@@ -141,6 +142,7 @@ func (c *CategoryRepository) UpdateCategory(category model.Category) (int64, err
 	if existingCategory.IsActive != category.IsActive {
 		builder = builder.Set(isActiveColumn, category.IsActive)
 	}
+	builder = builder.Set(updatedAtColumn, time.Now().Format("2006-01-02 15:04:05"))
 	query, args, err := builder.
 		Where((fmt.Sprintf("%s = ?", idColumn)), category.Id).
 		Suffix("RETURNING id").
@@ -148,8 +150,6 @@ func (c *CategoryRepository) UpdateCategory(category model.Category) (int64, err
 	if err != nil {
 		return 0, errors.New(err.Error())
 	}
-
-	fmt.Println(query, args)
 
 	res, err := c.Db.Exec(query, args...)
 	if err != nil {
@@ -162,6 +162,26 @@ func (c *CategoryRepository) UpdateCategory(category model.Category) (int64, err
 	return rowAffected, nil
 }
 
-func (c *CategoryRepository) DeleteCategory() string {
-	return "Delete in repository"
+func (c *CategoryRepository) DeleteCategory(id uint64) (int64, error) {
+	query, args, err := squirrel.
+		Delete(tableName).
+		PlaceholderFormat(squirrel.Dollar).
+		Where((fmt.Sprintf("%s = ?", idColumn)), id).
+		ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	res, err := c.Db.Exec(query, args...)
+	if err != nil {
+		return 0, err
+	}
+	rowAffected, err := res.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	if rowAffected == 0 {
+		return rowAffected, fmt.Errorf("record not deleted. Maybe unexisting id")
+	}
+	return rowAffected, nil
 }
