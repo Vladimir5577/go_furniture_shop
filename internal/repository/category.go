@@ -10,18 +10,6 @@ import (
 	"github.com/Masterminds/squirrel"
 )
 
-const (
-	tableName = "category"
-
-	idColumn          = "id"
-	nameColumn        = "name"
-	descriptionColumn = "description"
-	imageColumn       = "image"
-	isActiveColumn    = "is_active"
-	createdAtColumn   = "created_at"
-	updatedAtColumn   = "updated_at"
-)
-
 type ICategoryRepository interface {
 	GetAllCategories(page, pageSize uint64) ([]model.Category, error)
 	GetCategoryById(id uint64) (model.Category, error)
@@ -46,7 +34,7 @@ func (c *CategoryRepository) GetAllCategories(page, pageSize uint64) ([]model.Ca
 		categories []model.Category
 	)
 	builder := squirrel.Select(idColumn, nameColumn, descriptionColumn, imageColumn, isActiveColumn, createdAtColumn, updatedAtColumn).
-		From(tableName).
+		From(categoryTableName).
 		PlaceholderFormat(squirrel.Dollar).
 		Where(isActiveColumn)
 
@@ -80,7 +68,7 @@ func (c *CategoryRepository) GetAllCategories(page, pageSize uint64) ([]model.Ca
 func (c *CategoryRepository) GetCategoryById(id uint64) (model.Category, error) {
 	var category model.Category
 	query, args, err := squirrel.Select(idColumn, nameColumn, descriptionColumn, imageColumn, isActiveColumn, createdAtColumn, updatedAtColumn).
-		From(tableName).
+		From(categoryTableName).
 		PlaceholderFormat(squirrel.Dollar).
 		Where((fmt.Sprintf("%s = ?", idColumn)), id).
 		Limit(1).
@@ -99,7 +87,7 @@ func (c *CategoryRepository) GetCategoryById(id uint64) (model.Category, error) 
 }
 
 func (c *CategoryRepository) CreateCategory(category model.Category) (int64, error) {
-	query, args, err := squirrel.Insert(tableName).
+	query, args, err := squirrel.Insert(categoryTableName).
 		PlaceholderFormat(squirrel.Dollar).
 		Columns(nameColumn, descriptionColumn, imageColumn).
 		Values(category.Name, category.Description, category.Image).
@@ -128,7 +116,7 @@ func (c *CategoryRepository) UpdateCategory(category model.Category) (int64, err
 	}
 
 	builder := squirrel.
-		Update(tableName).
+		Update(categoryTableName).
 		PlaceholderFormat(squirrel.Dollar)
 	if category.Name != "" {
 		builder = builder.Set(nameColumn, category.Name)
@@ -164,7 +152,7 @@ func (c *CategoryRepository) UpdateCategory(category model.Category) (int64, err
 
 func (c *CategoryRepository) DeleteCategory(id uint64) (int64, error) {
 	query, args, err := squirrel.
-		Delete(tableName).
+		Delete(categoryTableName).
 		PlaceholderFormat(squirrel.Dollar).
 		Where((fmt.Sprintf("%s = ?", idColumn)), id).
 		ToSql()

@@ -7,6 +7,13 @@ Install dependencies:
     $ go get github.com/Masterminds/squirrel
     $ go get github.com/nfnt/resize
 
+Install dlv:
+    $ go install github.com/go-delve/delve/cmd/dlv@v1.24.1
+
+
+Install missing dependencies:
+    $ go mod tidy
+
 Before run make sure that all migrations with goose done (read below).
 Run:
     $ go run cmd/main.go

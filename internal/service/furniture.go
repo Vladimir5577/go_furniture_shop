@@ -1,11 +1,15 @@
 package service
 
-import "furniture_shop/internal/repository"
+import (
+	"errors"
+	"furniture_shop/internal/model"
+	"furniture_shop/internal/repository"
+)
 
 type IFurnitureService interface {
 	GetAllFurnitures() string
 	GetFurnitureById() string
-	CreateFurniture() string
+	CreateFurniture(model.Furniture) (int64, error)
 	UpdateFurniture() string
 	DeleteFurniture() string
 }
@@ -28,8 +32,11 @@ func (c *FurnitureService) GetFurnitureById() string {
 	return c.Repository.GetFurnitureById()
 }
 
-func (c *FurnitureService) CreateFurniture() string {
-	return c.Repository.CreateFurniture()
+func (c *FurnitureService) CreateFurniture(furniture model.Furniture) (int64, error) {
+	if furniture.Name == "" {
+		return 0, errors.New("name is required")
+	}
+	return c.Repository.CreateFurniture(furniture)
 }
 
 func (c *FurnitureService) UpdateFurniture() string {

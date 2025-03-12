@@ -18,8 +18,17 @@ type EnvConfig struct {
 
 func NewEnvConfig() (*EnvConfig, error) {
 	// Load .env file.
-	if err := env.Load(".env"); err != nil {
-		return nil, err
+	// if err := env.Load(".env"); err != nil {
+	// 	return nil, err
+	// }
+
+	// TO DO remove it is for debugging
+	errReadEnvFile := env.Load(".env")
+	if errReadEnvFile != nil {
+		errReadEnvFileForDebugg := env.Load("../.env")
+		if errReadEnvFileForDebugg != nil {
+			return nil, errReadEnvFileForDebugg
+		}
 	}
 
 	// Parse environment into struct.
