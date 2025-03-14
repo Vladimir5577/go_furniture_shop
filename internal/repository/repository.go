@@ -4,6 +4,9 @@ const (
 	categoryTableName  = "category"
 	furnitureTableName = "furniture"
 
+	orderByAsc  = "ASC"
+	orderByDesc = "DESC"
+
 	idColumn          = "id"
 	categoryIdColumn  = "category_id"
 	nameColumn        = "name"
