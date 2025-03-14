@@ -41,11 +41,11 @@ func main() {
 	furnitureService := service.NewFurnitureService(furnitureRepository)
 	furnitureHandler := handler.NewFurnitureHandler(furnitureService)
 
-	handlMux.HandleFunc("GET /furnitures", furnitureHandler.GetAllCategories())
-	handlMux.HandleFunc("GET /furniture", furnitureHandler.GetCategoryById())
-	handlMux.HandleFunc("POST /furniture", furnitureHandler.CreateCategory())
-	handlMux.HandleFunc("PUT /furniture", furnitureHandler.UpdateCategory())
-	handlMux.HandleFunc("DELETE /furniture", furnitureHandler.DeleteCategory())
+	handlMux.HandleFunc("GET /furnitures", furnitureHandler.GetAllFurnitures())
+	handlMux.HandleFunc("GET /furniture/{id}", furnitureHandler.GetFurnitureById())
+	handlMux.HandleFunc("POST /furniture", furnitureHandler.CreateFurniture())
+	handlMux.HandleFunc("PUT /furniture", furnitureHandler.UpdateFurniture())
+	handlMux.HandleFunc("DELETE /furniture/{id}", furnitureHandler.DeleteFurniture())
 
 	handlMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

@@ -87,6 +87,7 @@ func (c *CategoryRepository) GetCategoryById(id uint64) (model.Category, error) 
 }
 
 func (c *CategoryRepository) CreateCategory(category model.Category) (int64, error) {
+	// TO DO check for existing name manually
 	query, args, err := squirrel.Insert(categoryTableName).
 		PlaceholderFormat(squirrel.Dollar).
 		Columns(nameColumn, descriptionColumn, imageColumn).

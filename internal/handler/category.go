@@ -139,7 +139,7 @@ func (c *CategoryHandler) CreateCategory() http.HandlerFunc {
 
 func (c *CategoryHandler) UpdateCategory() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TO DO update iumage available but not deleet
+		// TO DO update image available but not delete
 		idString := r.FormValue("id")
 		if idString == "" {
 			w.Write([]byte("id required"))
