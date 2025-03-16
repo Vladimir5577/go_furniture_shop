@@ -9,6 +9,7 @@ import (
 	"furniture_shop/internal/utils"
 	"net/http"
 	"strconv"
+	"text/template"
 )
 
 type FurnitureHandler struct {
@@ -52,14 +53,20 @@ func (c *FurnitureHandler) GetAllFurnitures() http.HandlerFunc {
 			}
 		}
 
-		res, err := c.Service.GetAllFurnitures(page, pageSize)
+		furnitures, err := c.Service.GetAllFurnitures(page, pageSize)
 		if err != nil {
 			fmt.Println("Error occured", err)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(res)
+		// w.Header().Set("Content-Type", "application/json")
+		// w.WriteHeader(200)
+		// json.NewEncoder(w).Encode(res)
+
+		t, _ := template.ParseFiles("templates/base_layout.html", "templates/index.html")
+		err = t.Execute(w, furnitures)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
 	}
 }
 

@@ -26,6 +26,8 @@ func main() {
 	// os.Exit(123)
 
 	handlMux := http.NewServeMux()
+	// fs := http.FileServer(http.Dir("./uploads"))
+	// handlMux.Handle("./uploads/*", http.StripPrefix("./uploads/", fs))
 
 	categoryRepository := repository.NewCategoryRepository(db)
 	categoryService := service.NewCategoryService(categoryRepository)
@@ -47,12 +49,14 @@ func main() {
 	handlMux.HandleFunc("PUT /furniture", furnitureHandler.UpdateFurniture())
 	handlMux.HandleFunc("DELETE /furniture/{id}", furnitureHandler.DeleteFurniture())
 
-	handlMux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	handlMux.HandleFunc("GET /index", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)
 		json.NewEncoder(w).Encode("Furniture web site.")
 		// w.Write([]byte("Hello"))
 	})
+
+	handlMux.Handle("/uploads/", http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))))
 
 	server := http.Server{
 		Addr:    ":8081",
