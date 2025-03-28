@@ -25,3 +25,21 @@ type FurnitureRequest struct {
 	CreatedAt   sql.NullString  `json:"created_at"`
 	UpdatedAt   sql.NullString  `json:"updated_at"`
 }
+
+type FurnituresResponse struct {
+	Furnitures        []Furniture        `json:"furnitures"`
+	Categories        []CategoryResponse `json:"categories"`
+	Count             uint64             `json:"count"`
+	Page              uint64             `json:"page"`
+	PageSize          uint64             `json:"page_size"`
+	PageCount         uint64             `json:"page_count"`
+	Pages             []uint64
+	CurrentPage       uint64
+	CurrentCategoryId uint64
+}
+
+type FurnitureQueryparams struct {
+	Page       uint64
+	PageSize   uint64
+	CategoryId uint64
+}

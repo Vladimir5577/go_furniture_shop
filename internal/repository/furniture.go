@@ -11,7 +11,7 @@ import (
 )
 
 type IFurnitureRepository interface {
-	GetAllFurnitures(page, pageSize uint64) ([]model.Furniture, error)
+	GetAllFurnitures(model.FurnitureQueryparams) (model.FurnituresResponse, error)
 	GetFurnitureById(id uint64) (model.FurnitureRequest, error)
 	CreateFurniture(model.FurnitureRequest) (int64, error)
 	UpdateFurniture(model.FurnitureRequest) (int64, error)
@@ -28,37 +28,65 @@ func NewFurnitureRepository(db *sql.DB) *FurnitureRepository {
 	}
 }
 
-func (c *FurnitureRepository) GetAllFurnitures(page, pageSize uint64) ([]model.Furniture, error) {
+func (c *FurnitureRepository) CountRows(isAdmin bool, categoryId uint64) (uint64, error) {
+	var count uint64
+	sqlQuery := "SELECT COUNT(id) FROM furniture "
+	if categoryId != 0 {
+		sqlQuery += fmt.Sprintf(" WHERE category_id = %d", categoryId)
+	}
+	if !isAdmin {
+		sqlQuery += "WHERE is_active = true"
+	}
+	err := c.Db.QueryRow(sqlQuery).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (c *FurnitureRepository) GetAllFurnitures(queryParams model.FurnitureQueryparams) (model.FurnituresResponse, error) {
 	var (
-		furniture  model.FurnitureRequest
-		furnitures []model.Furniture
+		page               = queryParams.Page
+		pageSize           = queryParams.PageSize
+		categoryId         = queryParams.CategoryId
+		category           model.CategoryRequest
+		categories         []model.CategoryResponse
+		furniture          model.FurnitureRequest
+		furnitures         []model.Furniture
+		furnituresResponse model.FurnituresResponse
 	)
-	builder := squirrel.Select(idColumn, categoryIdColumn, nameColumn, descriptionColumn, priceColumn, imageColumn, isActiveColumn, createdAtColumn, updatedAtColumn).
+	builderFurniture := squirrel.Select(idColumn, categoryIdColumn, nameColumn, descriptionColumn, priceColumn, imageColumn, isActiveColumn, createdAtColumn, updatedAtColumn).
 		From(furnitureTableName).
 		PlaceholderFormat(squirrel.Dollar).
 		Where(isActiveColumn).
 		OrderBy(fmt.Sprintf("%s %s", idColumn, orderByAsc))
 
+	if categoryId != 0 {
+		builderFurniture = builderFurniture.
+			Where((fmt.Sprintf("%s = ?", categoryIdColumn)), categoryId)
+	}
+
 	if page != 0 && pageSize != 0 {
-		builder = builder.
+		builderFurniture = builderFurniture.
 			Limit(pageSize).
 			Offset(pageSize * (page - 1))
 	}
-	query, args, err := builder.ToSql()
+	query, args, err := builderFurniture.ToSql()
 
 	if err != nil {
-		return nil, err
+		return furnituresResponse, err
 	}
 
 	rows, err := c.Db.Query(query, args...)
 	if err != nil {
-		return nil, err
+		return furnituresResponse, err
 	}
 
 	for rows.Next() {
 		err = rows.Scan(&furniture.Id, &furniture.CategoryId, &furniture.Name, &furniture.Description, &furniture.Price, &furniture.Image, &furniture.IsActive, &furniture.CreatedAt, &furniture.UpdatedAt)
 		if err != nil {
-			return nil, err
+			return furnituresResponse, err
 		}
 
 		f := model.Furniture{
@@ -76,7 +104,63 @@ func (c *FurnitureRepository) GetAllFurnitures(page, pageSize uint64) ([]model.F
 		furnitures = append(furnitures, f)
 	}
 
-	return furnitures, nil
+	builderCategory := squirrel.Select(idColumn, nameColumn, descriptionColumn).
+		From(categoryTableName).
+		PlaceholderFormat(squirrel.Dollar).
+		Where(isActiveColumn)
+
+	queryCategory, args, err := builderCategory.ToSql()
+	if err != nil {
+		return furnituresResponse, err
+	}
+
+	rowsCategory, err := c.Db.Query(queryCategory, args...)
+	if err != nil {
+		return furnituresResponse, err
+	}
+
+	for rowsCategory.Next() {
+		err = rowsCategory.Scan(&category.Id, &category.Name, &category.Description)
+		if err != nil {
+			return furnituresResponse, err
+		}
+
+		c := model.CategoryResponse{
+			Id:          uint64(category.Id),
+			Name:        category.Name,
+			Description: category.Description.String,
+		}
+
+		categories = append(categories, c)
+	}
+
+	numRows, err := c.CountRows(true, categoryId)
+	if err != nil {
+		return furnituresResponse, err
+	}
+
+	pageCount := numRows / pageSize
+	if numRows%pageSize > 0 {
+		pageCount++
+	}
+
+	pages := make([]uint64, pageCount)
+	var i uint64
+	for i = 0; i < pageCount; i++ {
+		pages[i] = i + 1
+	}
+
+	furnituresResponse = model.FurnituresResponse{
+		Furnitures: furnitures,
+		Count:      numRows,
+		Page:       page,
+		PageSize:   pageSize,
+		PageCount:  pageCount,
+		Pages:      pages,
+		Categories: categories,
+	}
+
+	return furnituresResponse, nil
 }
 
 func (c *FurnitureRepository) GetFurnitureById(id uint64) (model.FurnitureRequest, error) {

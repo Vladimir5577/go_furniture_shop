@@ -49,6 +49,9 @@ func main() {
 	handlMux.HandleFunc("PUT /furniture", furnitureHandler.UpdateFurniture())
 	handlMux.HandleFunc("DELETE /furniture/{id}", furnitureHandler.DeleteFurniture())
 
+	// admin
+	handlMux.HandleFunc("GET /admin/furnitures", furnitureHandler.AdminGetAllFurnitures())
+
 	handlMux.HandleFunc("GET /index", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(200)

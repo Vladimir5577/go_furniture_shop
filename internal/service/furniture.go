@@ -10,7 +10,7 @@ import (
 )
 
 type IFurnitureService interface {
-	GetAllFurnitures(page, pageSize uint64) ([]model.Furniture, error)
+	GetAllFurnitures(model.FurnitureQueryparams) (model.FurnituresResponse, error)
 	GetFurnitureById(id uint64) (model.Furniture, error)
 	CreateFurniture(model.FurnitureRequest) (int64, error)
 	UpdateFurniture(model.FurnitureRequest) (int64, error)
@@ -27,14 +27,15 @@ func NewFurnitureService(repo repository.IFurnitureRepository) *FurnitureService
 	}
 }
 
-func (c *FurnitureService) GetAllFurnitures(page, pageSize uint64) ([]model.Furniture, error) {
-	if pageSize == 0 {
-		return nil, errors.New("page size should be above 0")
+func (c *FurnitureService) GetAllFurnitures(queryParams model.FurnitureQueryparams) (model.FurnituresResponse, error) {
+	var furnitures model.FurnituresResponse
+	if queryParams.PageSize == 0 {
+		return furnitures, errors.New("page size should be above 0")
 	}
-	if page == 0 {
-		return nil, errors.New("page number should be above 0")
+	if queryParams.Page == 0 {
+		return furnitures, errors.New("page number should be above 0")
 	}
-	return c.Repository.GetAllFurnitures(page, pageSize)
+	return c.Repository.GetAllFurnitures(queryParams)
 }
 
 func (c *FurnitureService) GetFurnitureById(id uint64) (model.Furniture, error) {

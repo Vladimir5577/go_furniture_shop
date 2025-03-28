@@ -1,0 +1,123 @@
+{{define "main"}}
+
+{{ $currentCategoryId := .CurrentCategoryId }}
+
+<h2>Furniture</h2>
+
+{{ $currentCategoryId := .CurrentCategoryId }}
+<div class="ros m-3">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ if (ne $currentCategoryId 0) }}
+            {{ range .Categories }}
+                {{ if (eq $currentCategoryId .Id) }}
+                {{ .Name }}
+                {{ end }}
+            {{ end }}
+            {{ else }}
+            All categories
+            {{ end }}
+        </button>
+        <ul class="dropdown-menu">
+            {{ range .Categories }}
+            <li><a class="dropdown-item" href="/admin/furnitures?category_id={{ .Id }}">{{ .Name }}</a></li>
+            {{ end }}
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/admin/furnitures">All categories</a></li>
+        </ul>
+    </div>
+</div>
+
+
+<table class="table table-success table-striped  table-hover">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">First</th>
+            <th scope="col">Last</th>
+            <th scope="col">Handle</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Furnitures }}
+        <tr>
+            <th scope="row">{{ .Id }}</th>
+            <td>
+                <img class="image-thumbnail" src="../uploads/{{ .Image }}" alt="">
+            </td>
+            <td>{{ .Name }}</td>
+            <td>{{ .Price }}</td>
+        </tr>
+        {{end }}
+        <tr>
+            <th scope="row">2</th>
+            <td>Jacob</td>
+            <td>Thornton</td>
+            <td>@fat</td>
+        </tr>
+        <tr>
+            <th scope="row">3</th>
+            <td colspan="2">Larry the Bird</td>
+            <td>@twitter</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="row m-3">
+    {{ $currentPage := .CurrentPage }}
+    {{ if (ge .Count .PageSize) }}
+    <nav aria-label="...">
+      <ul class="pagination">
+        <!-- <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+        </li> -->
+
+        {{ range $key, $value := .Pages }}
+        <li 
+          {{ if (eq $value $currentPage) }}
+            class="page-item active" aria-current="page"
+          {{ else }}
+            class="page-item"
+          {{ end }}
+        >
+          <a class="page-link" href="/admin/furnitures?page={{ $value }}&pageSize=20&category_id={{ $currentCategoryId }}">{{ $value }}</a>
+        </li>
+        {{ end }}
+
+        <!-- <li class="page-item active" aria-current="page">
+          <a class="page-link" href="#">2</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">3</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">Next</a>
+        </li> -->
+      </ul>
+    </nav>
+    {{ else }}
+    Less then 20 items
+    {{ end }}
+    
+
+
+    <!-- 
+      <nav aria-label="...">
+      <ul class="pagination">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active" aria-current="page">
+          <a class="page-link" href="#">2</a>
+        </li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item">
+          <a class="page-link" href="#">Next</a>
+        </li>
+      </ul>
+    </nav>
+    -->
+</div>
+
+{{ end }}

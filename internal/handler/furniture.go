@@ -7,9 +7,9 @@ import (
 	"furniture_shop/internal/model"
 	"furniture_shop/internal/service"
 	"furniture_shop/internal/utils"
+	"html/template"
 	"net/http"
 	"strconv"
-	"text/template"
 )
 
 type FurnitureHandler struct {
@@ -22,15 +22,17 @@ func NewFurnitureHandler(service service.IFurnitureService) *FurnitureHandler {
 	}
 }
 
-func (c *FurnitureHandler) GetAllFurnitures() http.HandlerFunc {
+func (c *FurnitureHandler) AdminGetAllFurnitures() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var page, pageSize uint64
 		// default pagination
 		page = 1
 		pageSize = 20
+		var categoryId uint64
 		var err error
 		pageString := r.URL.Query().Get("page")
 		pageSizeString := r.URL.Query().Get("pageSize")
+		categoryIdString := r.URL.Query().Get("category_id")
 
 		if pageString != "" {
 			page, err = strconv.ParseUint(pageString, 10, 64)
@@ -53,14 +55,96 @@ func (c *FurnitureHandler) GetAllFurnitures() http.HandlerFunc {
 			}
 		}
 
-		furnitures, err := c.Service.GetAllFurnitures(page, pageSize)
+		if categoryIdString != "" {
+			categoryId, err = strconv.ParseUint(categoryIdString, 10, 64)
+			if err != nil {
+				w.Write([]byte("Categpry id should be positive numeric"))
+				return
+			}
+		}
+
+		queryParams := model.FurnitureQueryparams{
+			Page:       page,
+			PageSize:   pageSize,
+			CategoryId: categoryId,
+		}
+
+		furnitures, err := c.Service.GetAllFurnitures(queryParams)
 		if err != nil {
 			fmt.Println("Error occured", err)
 			return
 		}
+		furnitures.CurrentPage = page
+		furnitures.CurrentCategoryId = categoryId
 		// w.Header().Set("Content-Type", "application/json")
 		// w.WriteHeader(200)
-		// json.NewEncoder(w).Encode(res)
+		// json.NewEncoder(w).Encode(furnitures)
+
+		t, _ := template.ParseFiles("templates/admin/base_layout.html", "templates/admin/furniture.html")
+		err = t.Execute(w, furnitures)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
+	}
+}
+
+func (c *FurnitureHandler) GetAllFurnitures() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var page, pageSize uint64
+		// default pagination
+		page = 1
+		pageSize = 20
+		var categoryId uint64
+		var err error
+		pageString := r.URL.Query().Get("page")
+		pageSizeString := r.URL.Query().Get("pageSize")
+		categoryIdString := r.URL.Query().Get("category_id")
+
+		if pageString != "" {
+			page, err = strconv.ParseUint(pageString, 10, 64)
+			if err != nil {
+				w.Write([]byte("Page number should be positive numeric"))
+				return
+			}
+			// if page number sended than make sure page size also sended
+			if pageSizeString == "" {
+				w.Write([]byte("Page size required"))
+				return
+			}
+		}
+
+		if pageSizeString != "" {
+			pageSize, err = strconv.ParseUint(pageSizeString, 10, 64)
+			if err != nil {
+				w.Write([]byte("PageSize should be positive numeric"))
+				return
+			}
+		}
+
+		if categoryIdString != "" {
+			categoryId, err = strconv.ParseUint(categoryIdString, 10, 64)
+			if err != nil {
+				w.Write([]byte("Categpry id should be positive numeric"))
+				return
+			}
+		}
+
+		queryParams := model.FurnitureQueryparams{
+			Page:       page,
+			PageSize:   pageSize,
+			CategoryId: categoryId,
+		}
+
+		furnitures, err := c.Service.GetAllFurnitures(queryParams)
+		if err != nil {
+			fmt.Println("Error occured", err)
+			return
+		}
+		furnitures.CurrentPage = page
+		furnitures.CurrentCategoryId = categoryId
+		// w.Header().Set("Content-Type", "application/json")
+		// w.WriteHeader(200)
+		// json.NewEncoder(w).Encode(furnitures)
 
 		t, _ := template.ParseFiles("templates/base_layout.html", "templates/index.html")
 		err = t.Execute(w, furnitures)
@@ -90,9 +174,15 @@ func (c *FurnitureHandler) GetFurnitureById() http.HandlerFunc {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(res)
+		// w.Header().Set("Content-Type", "application/json")
+		// w.WriteHeader(200)
+		// json.NewEncoder(w).Encode(res)
+
+		t, _ := template.ParseFiles("templates/base_layout.html", "templates/preview_furniture.html")
+		err = t.Execute(w, res)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
 	}
 }
 

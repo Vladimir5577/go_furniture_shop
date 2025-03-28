@@ -57,7 +57,30 @@ Open dbgate in browser;
 http response in json:
     https://golangbyexample.com/json-response-body-http-go/
     https://freshman.tech/file-upload-golang/
+    https://www.calhoun.io/intro-to-templates-p3-functions/
+    https://gist.github.com/obalunenko/8aea9d81901211891dd956379096617c --- template
 
 
 Print struct to console:
     fmt.Printf("Structure: %+v\n", my_structure)
+
+
+// ===========================================
+    Operation templage
+
+eq - Returns the boolean truth of arg1 == arg2
+ne - Returns the boolean truth of arg1 != arg2
+lt - Returns the boolean truth of arg1 < arg2
+le - Returns the boolean truth of arg1 <= arg2
+gt - Returns the boolean truth of arg1 > arg2
+ge - Returns the boolean truth of arg1 >= arg2
+
+{{if (ge .Usage .Limit)}}
+
+{{else if (gt .Usage .Warning)}}
+
+{{else if (eq .Usage 0)}}
+
+{{else}}
+
+{{end}}
