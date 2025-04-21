@@ -28,3 +28,13 @@ type CategoryResponse struct {
 	Description string `json:"description"`
 	Image       string `json:"image"`
 }
+
+type CategoriesResponse struct {
+	Categories  []Category `json:"categories"`
+	Count       uint64     `json:"count"`
+	Page        uint64     `json:"page"`
+	PageSize    uint64     `json:"page_size"`
+	PageCount   uint64     `json:"page_count"`
+	Pages       []uint64
+	CurrentPage uint64
+}

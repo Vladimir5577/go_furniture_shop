@@ -6,6 +6,7 @@ import (
 	"furniture_shop/internal/model"
 	"furniture_shop/internal/service"
 	"furniture_shop/internal/utils"
+	"html/template"
 	"net/http"
 	"strconv"
 )
@@ -20,7 +21,7 @@ func NewCategoryHandler(service service.ICategoryService) *CategoryHandler {
 	}
 }
 
-func (c *CategoryHandler) GetAllCategories() http.HandlerFunc {
+func (c *CategoryHandler) AdminGetAllCategories() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var page, pageSize uint64
 		// default pagination
@@ -51,14 +52,21 @@ func (c *CategoryHandler) GetAllCategories() http.HandlerFunc {
 			}
 		}
 
-		res, err := c.Service.GetAllCategories(page, pageSize)
+		categoryResponse, err := c.Service.GetAllCategories(page, pageSize)
 		if err != nil {
 			fmt.Println("Error occured", err)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(res)
+		categoryResponse.CurrentPage = page
+		// w.Header().Set("Content-Type", "application/json")
+		// w.WriteHeader(200)
+		// json.NewEncoder(w).Encode(res)
+
+		t, _ := template.ParseFiles("templates/admin/base_layout.html", "templates/admin/category.html")
+		err = t.Execute(w, categoryResponse)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
 	}
 }
 

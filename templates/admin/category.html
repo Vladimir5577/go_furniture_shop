@@ -1,31 +1,7 @@
 {{define "main"}}
 
-{{ $currentCategoryId := .CurrentCategoryId }}
 
-<h2>Furniture</h2>
-
-<div class="ros m-3">
-    <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {{ if (ne $currentCategoryId 0) }}
-            {{ range .Categories }}
-                {{ if (eq $currentCategoryId .Id) }}
-                {{ .Name }}
-                {{ end }}
-            {{ end }}
-            {{ else }}
-            All categories
-            {{ end }}
-        </button>
-        <ul class="dropdown-menu">
-            {{ range .Categories }}
-            <li><a class="dropdown-item" href="/admin/furnitures?category_id={{ .Id }}">{{ .Name }}</a></li>
-            {{ end }}
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/admin/furnitures">All categories</a></li>
-        </ul>
-    </div>
-</div>
+<h2>Categories.</h2>
 
 
 <table class="table table-success table-striped  table-hover">
@@ -39,14 +15,14 @@
         </tr>
     </thead>
     <tbody>
-        {{range .Furnitures }}
+        {{range .Categories }}
         <tr>
             <th scope="row">{{ .Id }}</th>
             <td>
                 <img class="image-thumbnail" src="../uploads/{{ .Image }}" alt="">
             </td>
             <td>{{ .Name }}</td>
-            <td>{{ .Price }}</td>
+            <td>{{ .Name }}</td>
             <td>
               <div class="btn-group" role="group" aria-label="Basic mixed styles example">
                 <a href="/admin/furniture/{{ .Id }}" class="btn btn-success">Preview</a>
@@ -76,7 +52,7 @@
             class="page-item"
           {{ end }}
         >
-          <a class="page-link" href="/admin/furnitures?page={{ $value }}&pageSize=20&category_id={{ $currentCategoryId }}">{{ $value }}</a>
+          <a class="page-link" href="/admin/categories?page={{ $value }}&pageSize=20">{{ $value }}</a>
         </li>
         {{ end }}
 

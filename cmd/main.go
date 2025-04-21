@@ -33,7 +33,8 @@ func main() {
 	categoryService := service.NewCategoryService(categoryRepository)
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 
-	handlMux.HandleFunc("GET /categories", categoryHandler.GetAllCategories())
+	// TO DO categories for users
+	// handlMux.HandleFunc("GET /categories", categoryHandler.GetAllCategories())
 	handlMux.HandleFunc("GET /category/{id}", categoryHandler.GetCategoryById())
 	handlMux.HandleFunc("POST /category", categoryHandler.CreateCategory())
 	handlMux.HandleFunc("PUT /category", categoryHandler.UpdateCategory())
@@ -51,6 +52,8 @@ func main() {
 
 	// admin
 	handlMux.HandleFunc("GET /admin/furnitures", furnitureHandler.AdminGetAllFurnitures())
+	handlMux.HandleFunc("GET /admin/furniture/{id}", furnitureHandler.AdminGetFurnitureById())
+	handlMux.HandleFunc("GET /admin/categories", categoryHandler.AdminGetAllCategories())
 
 	handlMux.HandleFunc("GET /index", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

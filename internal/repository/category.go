@@ -11,7 +11,7 @@ import (
 )
 
 type ICategoryRepository interface {
-	GetAllCategories(page, pageSize uint64) ([]model.Category, error)
+	GetAllCategories(page, pageSize uint64) (model.CategoriesResponse, error)
 	GetCategoryById(id uint64) (model.Category, error)
 	CreateCategory(model.Category) (int64, error)
 	UpdateCategory(model.Category) (int64, error)
@@ -28,10 +28,25 @@ func NewCategoryRepository(db *sql.DB) *CategoryRepository {
 	}
 }
 
-func (c *CategoryRepository) GetAllCategories(page, pageSize uint64) ([]model.Category, error) {
+func (c *CategoryRepository) CountRows(isAdmin bool) (uint64, error) {
+	var count uint64
+	sqlQuery := "SELECT COUNT(id) FROM category "
+	if !isAdmin {
+		sqlQuery += "WHERE is_active = true"
+	}
+	err := c.Db.QueryRow(sqlQuery).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (c *CategoryRepository) GetAllCategories(page, pageSize uint64) (model.CategoriesResponse, error) {
 	var (
-		category   model.Category
-		categories []model.Category
+		category           model.Category
+		categories         []model.Category
+		categoriesResponse model.CategoriesResponse
 	)
 	builder := squirrel.Select(idColumn, nameColumn, descriptionColumn, imageColumn, isActiveColumn, createdAtColumn, updatedAtColumn).
 		From(categoryTableName).
@@ -46,23 +61,48 @@ func (c *CategoryRepository) GetAllCategories(page, pageSize uint64) ([]model.Ca
 	query, args, err := builder.ToSql()
 
 	if err != nil {
-		return nil, err
+		return categoriesResponse, err
 	}
 
 	rows, err := c.Db.Query(query, args...)
 	if err != nil {
-		return nil, err
+		return categoriesResponse, err
 	}
 
 	for rows.Next() {
 		err = rows.Scan(&category.Id, &category.Name, &category.Description, &category.Image, &category.IsActive, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
-			return nil, err
+			return categoriesResponse, err
 		}
 		categories = append(categories, category)
 	}
 
-	return categories, nil
+	numRows, err := c.CountRows(true)
+	if err != nil {
+		return categoriesResponse, err
+	}
+
+	pageCount := numRows / pageSize
+	if numRows%pageSize > 0 {
+		pageCount++
+	}
+
+	pages := make([]uint64, pageCount)
+	var i uint64
+	for i = 0; i < pageCount; i++ {
+		pages[i] = i + 1
+	}
+
+	categoriesResponse = model.CategoriesResponse{
+		Categories: categories,
+		Count:      numRows,
+		Page:       page,
+		PageSize:   pageSize,
+		PageCount:  pageCount,
+		Pages:      pages,
+	}
+
+	return categoriesResponse, nil
 }
 
 func (c *CategoryRepository) GetCategoryById(id uint64) (model.Category, error) {

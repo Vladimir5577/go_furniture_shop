@@ -9,7 +9,7 @@ import (
 )
 
 type ICategoryService interface {
-	GetAllCategories(page, pageSize uint64) ([]model.Category, error)
+	GetAllCategories(page, pageSize uint64) (model.CategoriesResponse, error)
 	GetCategoryById(id uint64) (model.Category, error)
 	CreateCategory(model.Category) (int64, error)
 	UpdateCategory(model.Category) (int64, error)
@@ -26,12 +26,13 @@ func NewCategoryService(repo repository.ICategoryRepository) *CategoryService {
 	}
 }
 
-func (c *CategoryService) GetAllCategories(page, pageSize uint64) ([]model.Category, error) {
+func (c *CategoryService) GetAllCategories(page, pageSize uint64) (model.CategoriesResponse, error) {
+	var categories model.CategoriesResponse
 	if pageSize == 0 {
-		return nil, errors.New("page size should be above 0")
+		return categories, errors.New("page size should be above 0")
 	}
 	if page == 0 {
-		return nil, errors.New("page number should be above 0")
+		return categories, errors.New("page number should be above 0")
 	}
 	return c.Repository.GetAllCategories(page, pageSize)
 }

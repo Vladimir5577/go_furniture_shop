@@ -154,6 +154,38 @@ func (c *FurnitureHandler) GetAllFurnitures() http.HandlerFunc {
 	}
 }
 
+func (c *FurnitureHandler) AdminGetFurnitureById() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		idString := r.PathValue("id")
+		if idString == "" {
+			w.Write([]byte("id required"))
+			return
+		}
+		id, err := strconv.ParseUint(idString, 10, 64)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			w.Write([]byte("id should be positive numeric"))
+			return
+		}
+
+		// w.Write([]byte(id))
+		res, err := c.Service.GetFurnitureById(id)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+			return
+		}
+		// w.Header().Set("Content-Type", "application/json")
+		// w.WriteHeader(200)
+		// json.NewEncoder(w).Encode(res)
+
+		t, _ := template.ParseFiles("templates/admin/base_layout.html", "templates/admin/preview_furniture.html")
+		err = t.Execute(w, res)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		}
+	}
+}
+
 func (c *FurnitureHandler) GetFurnitureById() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		idString := r.PathValue("id")
